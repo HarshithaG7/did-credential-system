@@ -1,0 +1,24 @@
+{
+  "name": "issuer-service",
+  "version": "1.0.0",
+  "description": "University Issuer Service for DID Credential System",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "create-issuer": "node scripts/create-issuer.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "did-jwt": "^9.0.1",
+    "did-jwt-vc": "^5.0.0",
+    "did-resolver": "^6.0.0",
+    "dotenv": "^18.0.4",
+    "ethers": "^6.17.0",
+    "ethr-did": "^3.0.38",
+    "ethr-did-resolver": "^14.1.4",
+    "express": "^5.2.1"
+  }
+}
