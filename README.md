@@ -43,3 +43,15 @@ The Revocation Registry test verifies that:
 1. A credential is initially not revoked.
 2. The credential can be revoked.
 3. The revoked status is correctly returned by the contract.
+
+## Deployed Contract
+
+### Sepolia Testnet
+
+Revocation Registry Contract:
+
+`0x08026e068E1b4B6428c68f173F0D0616c7b84D00`
+
+- Network: Sepolia
+- Contract: RevocationRegistry
+- Address: `0x08026e068E1b4B6428c68f173F0D0616c7b84D00`
