@@ -10,9 +10,11 @@ export default defineConfig({
   },
 
   networks: {
-    sepolia: {
+    polygonAmoy: {
       type: "http",
-      url: process.env.SEPOLIA_RPC_URL!,
+      chainType: "generic",
+      chainId: 80002,
+      url: process.env.POLYGON_AMOY_RPC_URL!,
       accounts: [process.env.PRIVATE_KEY!],
     },
   },
