@@ -13,7 +13,9 @@ const oldEnv = fs.existsSync(envPath)
   : {};
 
 const wallet = Wallet.createRandom();
-const chainId = "0x13882";
+
+// Ethereum Sepolia
+const chainId = "0xaa36a7";
 
 const issuerDID =
   `did:ethr:${chainId}:${wallet.address.toLowerCase()}`;
@@ -21,9 +23,9 @@ const issuerDID =
 const envContent = [
   `ISSUER_DID=${issuerDID}`,
   `ISSUER_PRIVATE_KEY=${wallet.privateKey}`,
-  `POLYGON_AMOY_CHAIN_ID=80002`,
+  `SEPOLIA_CHAIN_ID=11155111`,
   `REGISTRY_ADDRESS=${oldEnv.REGISTRY_ADDRESS || ""}`,
-  `RPC_URL=${oldEnv.RPC_URL || "https://rpc-amoy.polygon.technology/"}`,
+  `RPC_URL=${oldEnv.RPC_URL || ""}`,
   `PORT=${oldEnv.PORT || "3001"}`
 ].join("\n") + "\n";
 
@@ -32,7 +34,7 @@ fs.writeFileSync(envPath, envContent, {
   mode: 0o600
 });
 
-console.log("New issuer wallet generated.");
+console.log("New Sepolia issuer wallet generated.");
 console.log("New issuer DID:", issuerDID);
-console.log("New private key saved locally in .env.");
+console.log("Private key saved locally in .env.");
 console.log("Do not share the private key.");
