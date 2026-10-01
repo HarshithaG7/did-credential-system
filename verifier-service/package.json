@@ -1,0 +1,15 @@
+{
+  "name": "verifier-service",
+  "version": "1.0.0",
+  "main": "verifier.js",
+  "type": "commonjs",
+  "scripts": { "start": "node verifier.js" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "did-jwt": "^7.4.7",
+    "did-jwt-vc": "^3.2.15",
+    "did-resolver": "^4.1.0",
+    "ethr-did-resolver": "^10.1.5",
+    "ethers": "^6.13.2"
+  }
+}

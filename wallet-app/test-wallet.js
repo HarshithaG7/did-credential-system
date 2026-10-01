@@ -1,0 +1,16 @@
+const { getOrCreateStudentIdentity, storeCredential, createPresentation } = require("./wallet");
+
+const credentialJwt = "eyJhbGciOiJFUzI1NkstUiIsInR5cCI6IkpXVCJ9.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVW5pdmVyc2l0eURlZ3JlZUNyZWRlbnRpYWwiXSwiaXNzdWVyIjoiZGlkOmV0aHI6MHhhYTM2YTc6MHg1OWUwOTU0ZDAxZjI3NWExOTQ5ZDZmNDYxMWRmMDU0MGJmMjhiN2FjIiwiaXNzdWFuY2VEYXRlIjoiMjAyNi0xMC0wMVQwNDowNzo0MC4yODZaIiwiaWQiOiIweDEyZGM3NGRmY2M2YzMyNzQ4NTVmMjZjMjRiOWI0NmM2ZGVhOTcwZTVkNmJiYTRkOGEzYmQ0ZWU4NGE1M2Q3NTEiLCJjcmVkZW50aWFsU3ViamVjdCI6eyJpZCI6ImRpZDpldGhyOjB4YWEzNmE3OjB4MUY5Mjg2N0JhNUU1Y0FkYTVkZUZjZWU0OTFDZTI3NjQ3ZDVhQUExRSIsInN0dWRlbnROYW1lIjoiVGVzdCBTdHVkZW50IiwiZGVncmVlIjp7Im5hbWUiOiJCLlRlY2giLCJmaWVsZCI6IkNvbXB1dGVyIFNjaWVuY2UiLCJ1bml2ZXJzaXR5IjoiVGVzdCBVbml2ZXJzaXR5IiwiZ3JhZHVhdGlvblllYXIiOjIwMjZ9fX0sInN1YiI6ImRpZDpldGhyOjB4YWEzNmE3OjB4MUY5Mjg2N0JhNUU1Y0FkYTVkZUZjZWU0OTFDZTI3NjQ3ZDVhQUExRSIsIm5iZiI6MTc5MDgyNzY2MCwiaXNzIjoiZGlkOmV0aHI6MHhhYTM2YTc6MHg1OWUwOTU0ZDAxZjI3NWExOTQ5ZDZmNDYxMWRmMDU0MGJmMjhiN2FjIn0.Koji1GvhTNXMbx-iLejEFcKFbUWktLzi0VDZtQOKG9FlZ-PfNfSJoG4tQRJh-CvrAZktXK8SISUrgtqbcm7YLAA";
+
+async function main() {
+  const identity = getOrCreateStudentIdentity();
+  console.log("Wallet student DID:", identity.did);
+
+  storeCredential(credentialJwt);
+
+  const vpJwt = await createPresentation(credentialJwt);
+  console.log("\n--- COPY THE LINE BELOW FOR THE NEXT STEP ---\n");
+  console.log(vpJwt);
+}
+
+main();

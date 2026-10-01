@@ -147,3 +147,5 @@ artifacts/
 cache/
 types/
 test-credential.txt
+student-identity.json
+stored-credential.txt
