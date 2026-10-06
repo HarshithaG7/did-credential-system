@@ -14,10 +14,19 @@ const CONTRACT_ABI = [
 
 function App() {
   const [account, setAccount] = useState("")
+  const [mode, setMode] = useState("issuer")
+
+  const [studentName, setStudentName] = useState("")
   const [holderDID, setHolderDID] = useState("")
+  const [university, setUniversity] = useState("")
+  const [degree, setDegree] = useState("")
   const [credentialType, setCredentialType] = useState(
     "Academic Certificate"
   )
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split("T")[0]
+  )
+
   const [credentialId, setCredentialId] = useState("")
 
   const [issuedCredentials, setIssuedCredentials] =
@@ -77,8 +86,28 @@ function App() {
   async function issueCredential(event) {
     event.preventDefault()
 
+    if (!studentName.trim()) {
+      setStatus("Please enter the student's name.")
+      return
+    }
+
     if (!holderDID.trim()) {
       setStatus("Please enter the holder DID.")
+      return
+    }
+
+    if (!university.trim()) {
+      setStatus("Please enter the university name.")
+      return
+    }
+
+    if (!degree.trim()) {
+      setStatus("Please enter the degree or course.")
+      return
+    }
+
+    if (!issueDate) {
+      setStatus("Please select the issue date.")
       return
     }
 
@@ -128,10 +157,14 @@ function App() {
 
       const credential = {
         id,
+        studentName: studentName.trim(),
         holderDID: holderDID.trim(),
+        university: university.trim(),
+        degree: degree.trim(),
         type: credentialType,
         issuer: account,
         issuedAt: new Date().toISOString(),
+        issueDate,
         status: "Issued",
         issueTxHash: transaction.hash
       }
@@ -142,7 +175,11 @@ function App() {
       ])
 
       setCredentialId(id)
+
+      setStudentName("")
       setHolderDID("")
+      setUniversity("")
+      setDegree("")
 
       setStatus(
         "Credential successfully issued and registered on-chain."
@@ -213,6 +250,13 @@ function App() {
       const credential = issuedCredentials.find(
         item => item.id === credentialId.trim()
       )
+
+      if (!credential) {
+        setStatus(
+          "Credential is registered on-chain, but its certificate details are not available in this session."
+        )
+        return
+      }
 
       if (revoked) {
         setVerificationResult({
@@ -332,6 +376,13 @@ function App() {
     }
   }
 
+  function switchMode(selectedMode) {
+    setMode(selectedMode)
+    setStatus("")
+    setVerificationResult(null)
+    setCredentialId("")
+  }
+
   return (
     <div className="app">
       <nav className="navbar">
@@ -342,8 +393,12 @@ function App() {
 
         <div className="nav-links">
           <a href="#dashboard">Dashboard</a>
-          <a href="#issue">Issue</a>
-          <a href="#credentials">Credentials</a>
+
+          {mode === "issuer" && (
+            <a href="#issue">Issue</a>
+          )}
+
+          <a href="#credentials">Verify</a>
         </div>
 
         <button
@@ -378,18 +433,20 @@ function App() {
             </p>
 
             <div className="hero-buttons">
-              <button
-                className="primary-btn"
-                onClick={() =>
-                  document
-                    .getElementById("issue")
-                    .scrollIntoView({
-                      behavior: "smooth"
-                    })
-                }
-              >
-                Issue Credential
-              </button>
+              {mode === "issuer" && (
+                <button
+                  className="primary-btn"
+                  onClick={() =>
+                    document
+                      .getElementById("issue")
+                      .scrollIntoView({
+                        behavior: "smooth"
+                      })
+                  }
+                >
+                  Issue Credential
+                </button>
+              )}
 
               <button
                 className="secondary-btn"
@@ -401,7 +458,7 @@ function App() {
                     })
                 }
               >
-                Verify or Revoke
+                Verify Credential
               </button>
             </div>
           </div>
@@ -420,7 +477,9 @@ function App() {
 
               <div>
                 <h3>
-                  Decentralized Identity
+                  {mode === "issuer"
+                    ? "Issuer Mode"
+                    : "Verifier Mode"}
                 </h3>
 
                 <p>
@@ -454,108 +513,221 @@ function App() {
               </div>
 
               <div>
-                <span>Wallet</span>
+                <span>Current Mode</span>
 
-                <strong
-                  className={
-                    account ? "active" : ""
-                  }
-                >
-                  {account
-                    ? "Connected"
-                    : "Not connected"}
+                <strong className="active">
+                  {mode === "issuer"
+                    ? "Issuer"
+                    : "Verifier"}
                 </strong>
               </div>
             </div>
           </div>
         </section>
 
-        <section
-          className="features"
-          id="issue"
-        >
+        <section className="features">
           <div className="section-heading">
             <span>
-              CREATE A CREDENTIAL
+              SELECT WORKFLOW
             </span>
 
-            <h2>Issue New Credential</h2>
+            <h2>Choose Your Role</h2>
 
             <p>
-              Create a university credential
-              and register it on the Sepolia
-              blockchain.
+              Select whether you are issuing
+              credentials or verifying them.
             </p>
           </div>
 
-          <form
-            className="issue-form"
-            onSubmit={issueCredential}
-          >
-            <label htmlFor="holderDID">
-              Holder DID
-            </label>
+          <div className="registry-panel">
+            <div className="hero-buttons registry-buttons">
+              <button
+                type="button"
+                className={
+                  mode === "issuer"
+                    ? "primary-btn"
+                    : "secondary-btn"
+                }
+                onClick={() =>
+                  switchMode("issuer")
+                }
+              >
+                🏫 Issuer Mode
+              </button>
 
-            <input
-              id="holderDID"
-              className="credential-input"
-              placeholder="did:example:123456"
-              value={holderDID}
-              onChange={event =>
-                setHolderDID(
-                  event.target.value
-                )
-              }
-              required
-            />
-
-            <label htmlFor="credentialType">
-              Credential Type
-            </label>
-
-            <select
-              id="credentialType"
-              className="credential-input"
-              value={credentialType}
-              onChange={event =>
-                setCredentialType(
-                  event.target.value
-                )
-              }
-            >
-              <option>
-                Academic Certificate
-              </option>
-
-              <option>
-                Identity Credential
-              </option>
-
-              <option>
-                Employment Certificate
-              </option>
-
-              <option>
-                Course Completion
-              </option>
-            </select>
-
-            <button
-              className="primary-btn"
-              type="submit"
-              disabled={loading}
-            >
-              {loading
-                ? "Processing..."
-                : "Issue Credential On-Chain"}
-            </button>
-
-            <p className="form-note">
-              Issuing a credential requires
-              a MetaMask transaction on Sepolia.
-            </p>
-          </form>
+              <button
+                type="button"
+                className={
+                  mode === "verifier"
+                    ? "primary-btn"
+                    : "secondary-btn"
+                }
+                onClick={() =>
+                  switchMode("verifier")
+                }
+              >
+                🔍 Verifier Mode
+              </button>
+            </div>
+          </div>
         </section>
+
+        {mode === "issuer" && (
+          <section
+            className="features"
+            id="issue"
+          >
+            <div className="section-heading">
+              <span>
+                ISSUER WORKFLOW
+              </span>
+
+              <h2>Issue New Credential</h2>
+
+              <p>
+                Create a university credential
+                and register it on the Sepolia
+                blockchain.
+              </p>
+            </div>
+
+            <form
+              className="issue-form"
+              onSubmit={issueCredential}
+            >
+              <label htmlFor="studentName">
+                Student Name
+              </label>
+
+              <input
+                id="studentName"
+                className="credential-input"
+                placeholder="Enter student's full name"
+                value={studentName}
+                onChange={event =>
+                  setStudentName(
+                    event.target.value
+                  )
+                }
+                required
+              />
+
+              <label htmlFor="holderDID">
+                Holder DID
+              </label>
+
+              <input
+                id="holderDID"
+                className="credential-input"
+                placeholder="did:example:123456"
+                value={holderDID}
+                onChange={event =>
+                  setHolderDID(
+                    event.target.value
+                  )
+                }
+                required
+              />
+
+              <label htmlFor="university">
+                University / Institution
+              </label>
+
+              <input
+                id="university"
+                className="credential-input"
+                placeholder="Enter university or institution"
+                value={university}
+                onChange={event =>
+                  setUniversity(
+                    event.target.value
+                  )
+                }
+                required
+              />
+
+              <label htmlFor="degree">
+                Degree / Course
+              </label>
+
+              <input
+                id="degree"
+                className="credential-input"
+                placeholder="B.E. Computer Science and Engineering"
+                value={degree}
+                onChange={event =>
+                  setDegree(
+                    event.target.value
+                  )
+                }
+                required
+              />
+
+              <label htmlFor="credentialType">
+                Credential Type
+              </label>
+
+              <select
+                id="credentialType"
+                className="credential-input"
+                value={credentialType}
+                onChange={event =>
+                  setCredentialType(
+                    event.target.value
+                  )
+                }
+              >
+                <option>
+                  Academic Certificate
+                </option>
+
+                <option>
+                  Identity Credential
+                </option>
+
+                <option>
+                  Employment Certificate
+                </option>
+
+                <option>
+                  Course Completion
+                </option>
+              </select>
+
+              <label htmlFor="issueDate">
+                Issue Date
+              </label>
+
+              <input
+                id="issueDate"
+                type="date"
+                className="credential-input"
+                value={issueDate}
+                onChange={event =>
+                  setIssueDate(
+                    event.target.value
+                  )
+                }
+                required
+              />
+
+              <button
+                className="primary-btn"
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? "Processing..."
+                  : "Issue Credential On-Chain"}
+              </button>
+
+              <p className="form-note">
+                Issuing a credential requires
+                a MetaMask transaction on Sepolia.
+              </p>
+            </form>
+          </section>
+        )}
 
         <section
           className="features"
@@ -563,15 +735,21 @@ function App() {
         >
           <div className="section-heading">
             <span>
-              REGISTRY OPERATIONS
+              {mode === "issuer"
+                ? "ISSUER & VERIFIER WORKFLOW"
+                : "VERIFIER WORKFLOW"}
             </span>
 
-            <h2>Verify or Revoke</h2>
+            <h2>
+              {mode === "issuer"
+                ? "Verify or Revoke"
+                : "Verify Credential"}
+            </h2>
 
             <p>
-              Verify whether a credential
-              was issued and whether it has
-              been revoked.
+              {mode === "issuer"
+                ? "Verify a credential or revoke an issued credential."
+                : "Check whether a credential was issued and whether it has been revoked."}
             </p>
           </div>
 
@@ -583,7 +761,7 @@ function App() {
             <input
               id="credentialId"
               className="credential-input"
-              placeholder="Enter or select a credential ID"
+              placeholder="Enter a credential ID"
               value={credentialId}
               onChange={event =>
                 setCredentialId(
@@ -602,16 +780,18 @@ function App() {
                 Verify Credential
               </button>
 
-              <button
-                type="button"
-                className="primary-btn"
-                onClick={revokeCredential}
-                disabled={loading}
-              >
-                {loading
-                  ? "Processing..."
-                  : "Revoke Credential"}
-              </button>
+              {mode === "issuer" && (
+                <button
+                  type="button"
+                  className="primary-btn"
+                  onClick={revokeCredential}
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Processing..."
+                    : "Revoke Credential"}
+                </button>
+              )}
             </div>
           </div>
 
@@ -648,6 +828,19 @@ function App() {
                 <div className="verification-details">
                   <div>
                     <span>
+                      Student Name
+                    </span>
+
+                    <strong>
+                      {
+                        verificationResult
+                          .credential.studentName
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
                       Credential ID
                     </span>
 
@@ -674,6 +867,32 @@ function App() {
 
                   <div>
                     <span>
+                      University / Institution
+                    </span>
+
+                    <strong>
+                      {
+                        verificationResult
+                          .credential.university
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Degree / Course
+                    </span>
+
+                    <strong>
+                      {
+                        verificationResult
+                          .credential.degree
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
                       Credential Type
                     </span>
 
@@ -681,6 +900,19 @@ function App() {
                       {
                         verificationResult
                           .credential.type
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Issue Date
+                    </span>
+
+                    <strong>
+                      {
+                        verificationResult
+                          .credential.issueDate
                       }
                     </strong>
                   </div>
@@ -695,19 +927,6 @@ function App() {
                         verificationResult
                           .credential.issuer
                       }
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>
-                      Issued At
-                    </span>
-
-                    <strong>
-                      {new Date(
-                        verificationResult
-                          .credential.issuedAt
-                      ).toLocaleString()}
                     </strong>
                   </div>
 
@@ -739,7 +958,7 @@ function App() {
                     <strong>
                       {verificationResult.revoked
                         ? "❌ Yes"
-                        : "❌ No"}
+                        : "No"}
                     </strong>
                   </div>
 
@@ -782,85 +1001,101 @@ function App() {
                       </strong>
                     </div>
                   )}
+
+                  <div>
+                    <span>
+                      Credential Created
+                    </span>
+
+                    <strong>
+                      {new Date(
+                        verificationResult
+                          .credential.issuedAt
+                      ).toLocaleString()}
+                    </strong>
+                  </div>
                 </div>
               </div>
             )}
 
-          <div className="issued-list">
-            <h3>
-              Credentials Created This Session
-            </h3>
+          {mode === "issuer" && (
+            <div className="issued-list">
+              <h3>
+                Credentials Created This Session
+              </h3>
 
-            {issuedCredentials.length === 0 ? (
-              <p className="empty-state">
-                No credentials created yet.
-                Use the issuance form above.
-              </p>
-            ) : (
-              issuedCredentials.map(
-                credential => (
-                  <div
-                    className="issued-item"
-                    key={credential.id}
-                  >
-                    <div>
-                      <strong>
-                        {credential.type}
-                      </strong>
+              {issuedCredentials.length === 0 ? (
+                <p className="empty-state">
+                  No credentials created yet.
+                  Use the issuance form above.
+                </p>
+              ) : (
+                issuedCredentials.map(
+                  credential => (
+                    <div
+                      className="issued-item"
+                      key={credential.id}
+                    >
+                      <div>
+                        <strong>
+                          {credential.studentName}
+                        </strong>
 
-                      <p>
-                        {credential.id}
-                      </p>
+                        <p>
+                          {credential.degree}
+                        </p>
 
-                      <p>
-                        Holder:{" "}
-                        {credential.holderDID}
-                      </p>
+                        <p>
+                          {credential.university}
+                        </p>
 
-                      <p>
-                        Issued:{" "}
-                        {new Date(
-                          credential.issuedAt
-                        ).toLocaleString()}
-                      </p>
-                    </div>
+                        <p>
+                          {credential.id}
+                        </p>
 
-                    <div className="issued-actions">
-                      <span
-                        className={
-                          credential.status ===
-                          "Revoked"
-                            ? "revoked-label"
-                            : "issued-label"
-                        }
-                      >
-                        {credential.status}
-                      </span>
+                        <p>
+                          Status:{" "}
+                          {credential.status}
+                        </p>
+                      </div>
 
-                      <button
-                        className="card-btn"
-                        onClick={() => {
-                          setCredentialId(
-                            credential.id
-                          )
+                      <div className="issued-actions">
+                        <span
+                          className={
+                            credential.status ===
+                            "Revoked"
+                              ? "revoked-label"
+                              : "issued-label"
+                          }
+                        >
+                          {credential.status}
+                        </span>
 
-                          document
-                            .getElementById(
-                              "credentials"
+                        <button
+                          className="card-btn"
+                          onClick={() => {
+                            setCredentialId(
+                              credential.id
                             )
-                            .scrollIntoView({
-                              behavior: "smooth"
-                            })
-                        }}
-                      >
-                        Use ID →
-                      </button>
+
+                            document
+                              .getElementById(
+                                "credentials"
+                              )
+                              .scrollIntoView({
+                                behavior: "smooth"
+                              })
+                          }}
+                        >
+                          Use ID →
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )
-              )
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </section>
 
         <section className="stats">
@@ -896,11 +1131,13 @@ function App() {
 
           <div>
             <strong>
-              React
+              {mode === "issuer"
+                ? "Issuer"
+                : "Verifier"}
             </strong>
 
             <span>
-              Frontend
+              Current Mode
             </span>
           </div>
         </section>
